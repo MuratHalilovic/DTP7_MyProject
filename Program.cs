@@ -12,9 +12,15 @@ namespace dtp7_contact_list
             public string persname, surname, birthdate;
             public List<string> phone;
             public List<string> address;
-            public Person() { }
+            public Person() 
+            {
+                phone = new List<string>();
+                address = new List<string>();
+            }
             public Person(string persname, string surname)
             {
+                phone = new List<string>();
+                address = new List<string>();
                 this.persname = persname; this.surname = surname;
             }
             public void AddPhone(string phone)
@@ -40,7 +46,7 @@ namespace dtp7_contact_list
         }
         public static void Main(string[] args)
         {
-            string lastFileName = GetUserDirectory("address.lis");
+            string lastFileName = GetUserDirectory("address.lis.txt");
             string[] commandLine;
             PrintHelpMessage();
             do
@@ -62,6 +68,7 @@ namespace dtp7_contact_list
                     {
                         DeleteAllPersons(commandLine[1], commandLine[2]);
                     }
+                    // NYI error msg if name does not exist
                     else
                     {
                         Console.WriteLine("Usage:");
@@ -85,7 +92,7 @@ namespace dtp7_contact_list
                 {
                     if (commandLine.Length == 1)
                     {
-                        lastFileName = GetUserDirectory("address.lis");
+                        lastFileName = GetUserDirectory("address.lis.txt");
                         LoadContactListFromFile(lastFileName);
                     }
                     else if (commandLine.Length == 2)
@@ -95,6 +102,7 @@ namespace dtp7_contact_list
                         LoadContactListFromFile(lastFileName);
                     }
                     else
+                    // TODO number of persons loaded
                     {
                         Console.WriteLine("Usage:");
                         Console.WriteLine("  load                        - load contact list data from the file address.lis");
@@ -204,7 +212,7 @@ namespace dtp7_contact_list
 
         private static string GetUserDirectory(string path)
         {
-            return $"{System.Environment.GetEnvironmentVariable("USERPROFILE")}\\{path}";
+            return $"{System.Environment.GetEnvironmentVariable("HOME")}/{path}";
         }
 
         private static void SaveContactListToFile(string lastFileName)
@@ -221,13 +229,20 @@ namespace dtp7_contact_list
 
         private static void LoadContactListFromFile(string lastFileName)
         {
-            using (StreamReader infile = new StreamReader(lastFileName))
+            try 
             {
-                string line;
-                while ((line = infile.ReadLine()) != null)
+                using (StreamReader infile = new StreamReader(lastFileName))
                 {
-                    LoadContact(line); // Also prints the line loaded
+                    string line;
+                    while ((line = infile.ReadLine()) != null)
+                    {
+                         LoadContact(line); // Also prints the line loaded
+                    }
                 }
+            } 
+            catch (System.IO.FileNotFoundException)
+            {
+                Console.WriteLine($"Hittade inte filen {lastFileName}. Laddades inte.");
             }
         }
 
